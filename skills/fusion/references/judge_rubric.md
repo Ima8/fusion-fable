@@ -34,27 +34,31 @@ the integrator. Do this concretely:
    coherent design with a consistent style — never a Frankenstein of two whole programs.
 
 3. **Resolve every disagreement by correctness, not compromise.** Where candidates differ on an API call,
-   a constant, an algorithm, or a control flow, *determine which is actually right* — check the docs,
-   reason it through, or run it. Never average two answers or keep both "to be safe"; pick the correct one
-   and say why. Two candidates agreeing on the same approach is a strong signal it's sound; a lone
-   candidate doing something different is either a unique fix or a bug — decide which.
+   a constant, an algorithm, or a control flow, *determine which is actually right* — reason it through
+   from what you know of the language and libraries. Never average two answers or keep both "to be safe";
+   pick the correct one and say why. Two candidates agreeing on the same approach is a strong signal it's
+   sound; a lone candidate doing something different is either a unique fix or a bug — decide which.
 
-4. **Produce the complete, final artifact.** Emit the whole working thing — every file, every function,
-   runnable as-is. Not a diff, not "take A's handler and B's parser," not pseudocode. If the panelists
-   used different project layouts, commit to one and make everything consistent with it.
+4. **Trace the seams before you emit.** This merge is done by reasoning, not by running it, so the place
+   it can break is the *join* between grafted pieces — read it like a compiler would. Walk every seam and
+   reconcile it explicitly: do function names and signatures match on both sides of the call? Are imports,
+   types, return shapes, units, and index bases (0- vs 1-based) consistent across pieces that came from
+   different candidates? Is every variable defined before use, every reference resolved? A piece that was
+   correct inside candidate A can be wrong once it sits next to candidate B's code — your job is to make
+   the whole thing internally consistent, not just paste correct fragments.
 
-5. **Verify before you present.** Use bash to actually exercise it: compile/build it, run it, run the
-   tests, lint it — whatever the artifact supports. If it fails, fix it and re-run until it works. Never
-   hand over merged code you haven't run when running is possible. State exactly what you verified and how
-   (e.g. "compiled with `javac`, ran the datapack load, no errors").
+5. **Produce the complete, final artifact.** Emit the whole thing — every file, every function, ready to
+   run as-is. Not a diff, not "take A's handler and B's parser," not pseudocode. If the panelists used
+   different project layouts, commit to one and make everything consistent with it.
 
 6. **Brief merge rationale.** After the artifact, a short note: what you took from each candidate and why,
-   which disagreements you resolved and how, and what you verified. Keep it tight — the artifact is the
-   deliverable; this is the audit trail.
+   and which disagreements you resolved how. Keep it tight — the artifact is the deliverable; this is the
+   audit trail.
 
 The whole point of the panel for code is that two independent attempts expose each other's bugs. A bug one
 panelist made, the other often didn't — your merge should end up *more correct than either input*, not an
-average of them.
+average of them. Since you're integrating by reasoning rather than executing, that scrutiny lands hardest
+at the seams (step 4) — that's where a careless merge silently breaks.
 
 ---
 
@@ -96,4 +100,5 @@ flag what stays uncertain. It must follow *from* the synthesis, not be one panel
 - Be honest about confidence and about disagreement — a result that hides a real conflict is worse than no
   panel at all.
 - Keep attribution so the user can trace any decision back to its source.
-- For artifacts, "looks plausible" is not done — **verified to run** is done.
+- For artifacts, the merge is done by careful reasoning — so the bar is **internally consistent and
+  seam-checked** (step 4), not just "each fragment looked right on its own."
